@@ -1,22 +1,76 @@
-let colorPicker = document.getElementById("colorPickerContainer");
-let hexCode = document.getElementById("selectedColorHexCode");
+let inputEl = document.getElementById("searchInput");
+let resultsEl = document.getElementById("searchResults");
+let spinnerEl = document.getElementById("spinner");
 
-function buttonOne() {
-    colorPicker.style.background = "#e0e0e0";
-    hexCode.textContent = "#e0e0e0";
+function createAndAppendResult(result) {
+    let {
+        link,
+        title,
+        description
+    } = result;
+    let resultItemEl = document.createElement("div");
+    resultItemEl.classList.add("result-item");
+
+    let titleEl = document.createElement("a");
+    titleEl.href = link;
+    titleEl.target = "_blank";
+    titleEl.textContent = title;
+    titleEl.classList.add("result-title");
+    resultItemEl.appendChild(titleEl);
+
+    let titleBreakEl = document.createElement("br");
+    resultItemEl.appendChild(titleBreakEl);
+
+    let urlEl = document.createElement("a");
+    urlEl.classList.add("result-url");
+    urlEl.href = link;
+    urlEl.target = "_blank";
+    urlEl.textContent = link;
+    resultItemEl.appendChild(urlEl);
+
+    let linkBreakEl = document.createElement("br");
+    resultItemEl.appendChild(linkBreakEl);
+
+    let descriptionEl = document.createElement("p");
+    descriptionEl.classList.add("link-description");
+    descriptionEl.textContent = description;
+    resultItemEl.appendChild(descriptionEl);
+
+    resultsEl.appendChild(resultItemEl);
+
 }
 
-function buttonTwo() {
-    colorPicker.style.background = "#6fcf97";
-    hexCode.textContent = "#6fcf97";
+
+
+
+function displayResults(searchResults) {
+    spinnerEl.classList.add("d-none");
+    for (let result of searchResults) {
+        createAndAppendResult(result);
+    }
 }
 
-function buttonThree() {
-    colorPicker.style.background = "#56ccf2";
-    hexCode.textContent = "#56ccf2";
+
+function getSearch(event) {
+    if (event.key === "Enter") {
+        spinnerEl.classList.remove("d-none");
+        resultsEl.textContent = "";
+        let input = inputEl.value;
+        let url = "https://apis.ccbp.in/wiki-search?search=" + input;
+        let options = {
+            method: "GET"
+        };
+        fetch(url, options)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonData) {
+                let {
+                    search_results
+                } = jsonData;
+                displayResults(search_results);
+            });
+    }
 }
 
-function buttonFour() {
-    colorPicker.style.background = "#bb6bd9";
-    hexCode.textContent = "#bb6bd9";
-}
+inputEl.addEventListener("keydown", getSearch);
